@@ -7,6 +7,7 @@ void stationary_setup(){
     // initialize message
     msg.type = NORMAL;
     msg.crc = message_crc(&msg);
+    msg.data[0] = kilo_uid;
 }
 
 void stationary_loop(uint16_t current_index){

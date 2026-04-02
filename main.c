@@ -13,7 +13,7 @@ int current_index;
 
 void setup() {
     current_index = kilo_uid;
-    if(current_role % num_robots == 0)
+    if(current_index == 0)
         current_role = RUNNER;
     else
         current_role = STATIONARY;
