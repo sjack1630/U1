@@ -8,7 +8,7 @@ typedef enum {
 } role_t;
 
 role_t current_role;
-const uint16_t num_robots = 3;
+const uint8_t num_robots = 3;
 int current_index;
 
 void setup() {
@@ -18,15 +18,15 @@ void setup() {
     else
         current_role = STATIONARY;
     
-    runner_setup();
-    stationary_setup();
+    runner_setup(num_robots);
+    stationary_setup(num_robots);
 }
 
 void loop() {
     if(current_role == RUNNER)
-        runner_loop();
+        runner_loop(num_robots);
     else
-        stationary_loop(current_index);
+        stationary_loop(current_index, num_robots);
 }
 
 void message_rx(message_t *m, distance_measurement_t *d) {
