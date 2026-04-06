@@ -24,8 +24,8 @@ typedef enum {
 // variables from original orbit code 
 motion_t cur_motion = STOP;
 orbit_state_t orbit_state = ORBIT_NORMAL;
-uint8_t cur_distance = 0;
-uint8_t new_message = 0;
+uint8_t cur_distance;
+uint8_t new_message;
 distance_measurement_t dist;
 message_t msg;
 
@@ -33,7 +33,7 @@ message_t msg;
 uint8_t rx_kilo_id; // id of bot that sent message
 uint8_t front_kilo_id; // id of the bot in the front
 uint8_t second_kilo_id; // id of bot behind front one; bot used to know when to stop runner at the front
-uint8_t prev_second_dist = 0; // the previous distance from the runner to the second bot
+uint8_t prev_second_dist; // the previous distance from the runner to the second bot
 uint8_t dist_val; // distance from the message received
 uint8_t stop_flag; // flag to stop runner
 uint8_t switch_sent_flag; // flag to initialize switch == set compute new current_runner and set in message
@@ -90,9 +90,12 @@ void runner_setup(){
     // Runner is this bot
     current_runner_local = kilo_uid;
 
-    // Reset flag values
+    // Reset zero values
     stop_flag = 0;
     switch_sent_flag = 0;
+    prev_second_dist = 0;
+    cur_distance = 0;
+    new_message = 0;
 
     // Modulo math. On the first pass with three robots it should go: 1, 2, 1. With init runner being 0. 
     cur_target_kilo_id = (current_runner + 1) % num_robots;

@@ -3,10 +3,11 @@
 // Take current_runner from main
 extern uint8_t current_runner;
 
-uint8_t message_sent = 0;
+uint8_t message_sent;
 message_t msg;
 
 void stationary_setup(){
+    message_sent = 0;
     msg.type = NORMAL;
     msg.data[0] = kilo_uid;
     msg.data[1] = current_runner;
