@@ -90,7 +90,7 @@ void runner_setup(){
     // Runner is this bot
     current_runner_local = kilo_uid;
 
-    // Modulus math. On the first pass with three robots it should go: 1, 2, 1. With init runner being 0. 
+    // Modulo math. On the first pass with three robots it should go: 1, 2, 1. With init runner being 0. 
     cur_target_kilo_id = (current_runner + 1) % num_robots;
     front_kilo_id = (current_runner - 1 + num_robots) % num_robots;
     second_kilo_id = (front_kilo_id - 1 + num_robots) % num_robots;
