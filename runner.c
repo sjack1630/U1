@@ -35,8 +35,8 @@ uint8_t front_kilo_id; // id of the bot in the front
 uint8_t second_kilo_id; // id of bot behind front one; bot used to know when to stop runner at the front
 uint8_t prev_second_dist = 0; // the previous distance from the runner to the second bot
 uint8_t dist_val; // distance from the message received
-uint8_t stop_flag = 0; // flag to stop runner
-uint8_t switch_sent_flag = 0; // flag to initialize switch == set compute new current_runner and set in message
+uint8_t stop_flag; // flag to stop runner
+uint8_t switch_sent_flag; // flag to initialize switch == set compute new current_runner and set in message
 uint8_t cur_target_kilo_id; // id of bot runner is currently orbiting
 uint8_t current_runner_local; // should be same as current_runner until switch. It doesn't work if I don't separate it into current_runner and current_runner_local. I think it's because I'm getting current_runner from main, but I'm also not really sure still
 
@@ -89,6 +89,10 @@ void orbit_tooclose() {
 void runner_setup(){
     // Runner is this bot
     current_runner_local = kilo_uid;
+
+    // Reset flag values
+    stop_flag = 0;
+    switch_sent_flag = 0;
 
     // Modulo math. On the first pass with three robots it should go: 1, 2, 1. With init runner being 0. 
     cur_target_kilo_id = (current_runner + 1) % num_robots;
