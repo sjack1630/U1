@@ -36,7 +36,7 @@ void message_rx(message_t *m, distance_measurement_t *d) {
     runner_rx = m->data[1];
 
     // If runner in message just received is not what the given bot thinks it is, then the current runner initialized a switch of runner
-    // Uupdate current runner, then initialize role switch on given bot. This includes running the respective setup.
+    // Update current runner, then initialize role switch on given bot. This includes running the respective setup.
     if (runner_rx != current_runner){
         current_runner = runner_rx;
         if (kilo_uid == current_runner){

@@ -40,6 +40,10 @@ uint8_t switch_sent_flag; // flag to initialize switch == set compute new curren
 uint8_t cur_target_kilo_id; // id of bot runner is currently orbiting
 uint8_t current_runner_local; // should be same as current_runner until switch. It doesn't work if I don't separate it into current_runner and current_runner_local. I think it's because I'm getting current_runner from main, but I'm also not really sure still
 
+// variables for num_robots = 2
+uint8_t orbit_switch_ct;
+uint32_t last_update;
+
 
 // function to set new motion
 // UNCHANGED
@@ -66,7 +70,7 @@ void set_motion(motion_t new_motion) {
     }
 }
 
-// UNCHANGED
+// Added num_robots = 2 case orbit switch count
 void orbit_normal() {
     if (cur_distance < TOOCLOSE_DISTANCE) {
         orbit_state = ORBIT_TOOCLOSE;
@@ -75,6 +79,10 @@ void orbit_normal() {
             set_motion(LEFT);
         else
             set_motion(RIGHT);
+
+        if (num_robots == 2){
+            orbit_switch_ct++;
+        }
     }
 }
 
@@ -107,6 +115,10 @@ void runner_setup(){
     msg.data[0] = kilo_uid;
     msg.data[1] = current_runner_local;
     msg.crc = message_crc(&msg);
+
+    // num_robots = 2
+    orbit_switch_ct = 0;
+    last_update = kilo_ticks;
 }
 
 void runner_loop(){
@@ -114,6 +126,18 @@ void runner_loop(){
     if (new_message) {
         new_message = 0;
         dist_val = estimate_distance(&dist);
+
+        // Logic for num_robots = 2 edge case
+        if (num_robots == 2){
+            // 32 ticks = 1 sec
+            if (kilo_ticks > last_update + 640 || orbit_switch_ct > 4) {
+                set_motion(STOP);
+                stop_flag = 1;
+                set_color(RGB(0,0,1));
+                delay(20);
+                set_color(RGB(0,0,0));
+            }
+        }
 
         // If incoming dist value is less than my previous distance and that distance isn't from the bot runner is currently orbiting, switch the target bot and blink BLUE
         if (dist_val < cur_distance && rx_kilo_id != cur_target_kilo_id){
