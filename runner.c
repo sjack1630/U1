@@ -137,50 +137,52 @@ void runner_loop(){
                 delay(20);
                 set_color(RGB(0,0,0));
             }
-        }
+        } else {
+            // If incoming dist value is less than my previous distance and that distance isn't from the bot runner is currently orbiting, switch the target bot and blink BLUE
+            if (dist_val < cur_distance && rx_kilo_id != cur_target_kilo_id){
+                cur_distance = dist_val;
+                cur_target_kilo_id = rx_kilo_id;
+                set_color(RGB(0,0,1));
+                delay(20);
+                set_color(RGB(0,0,0));
+            }
 
-        // If incoming dist value is less than my previous distance and that distance isn't from the bot runner is currently orbiting, switch the target bot and blink BLUE
-        if (dist_val < cur_distance && rx_kilo_id != cur_target_kilo_id){
-            cur_distance = dist_val;
-            cur_target_kilo_id = rx_kilo_id;
-            set_color(RGB(0,0,1));
-            delay(20);
-            set_color(RGB(0,0,0));
+            // Logic for stopping in front
+            // If runner is orbiting front bot and receives message from second to front bot:
+            // 1) Lower desired distance. Maybe not necessary but it's been working well. The tighter orbit keeps runner in range of second to front bot
+            // 2) Check if distance from second to front bot is increasing. If it is, update prev_second_dist to this new dist_val
+            // If distance is not increasing and the distance from second to front bot to runner is greater than 80 mm, stop runner, switch stop_flag, blink blue
+            // dist_val > 80 is necessary because bot movement is sporadic, so dist from runner to second to front will increase and decrease as it moves to the front. dist_val > 80 makes sure it's actually in the front when distance starts to decrease
+            if (cur_target_kilo_id == front_kilo_id && rx_kilo_id == second_kilo_id){
+                DESIRED_DISTANCE = 50;
+                if (dist_val > prev_second_dist){
+                    prev_second_dist = dist_val;
+                } else if (dist_val < prev_second_dist && dist_val > 80){
+                    set_motion(STOP);
+                    stop_flag = 1;
+                    set_color(RGB(0,0,1));
+                    delay(20);
+                    set_color(RGB(0,0,0));
+                }
+
+            // This is just debugging. Blink yellow if distance is decreasing but dist_val is not greater than 80. I used this to validate need for dist_val > 80. In my text in the group chat I lied and said yellow was switch. What I meant was blue (above) is switch.
+            if (cur_distance < prev_second_dist){
+                    set_color(RGB(1,1,0));
+                    delay(20);
+                    set_color(RGB(0,0,0));
+                }
+            }
         }
 
         // Update cur_distance if message is from target bot
         if (rx_kilo_id == cur_target_kilo_id){
             cur_distance = dist_val;
         }
-
-        // Logic for stopping in front
-        // If runner is orbiting front bot and receives message from second to front bot:
-        // 1) Lower desired distance. Maybe not necessary but it's been working well. The tighter orbit keeps runner in range of second to front bot
-        // 2) Check if distance from second to front bot is increasing. If it is, update prev_second_dist to this new dist_val
-        // If distance is not increasing and the distance from second to front bot to runner is greater than 80 mm, stop runner, switch stop_flag, blink blue
-        // dist_val > 80 is necessary because bot movement is sporadic, so dist from runner to second to front will increase and decrease as it moves to the front. dist_val > 80 makes sure it's actually in the front when distance starts to decrease
-        if (cur_target_kilo_id == front_kilo_id && rx_kilo_id == second_kilo_id){
-            DESIRED_DISTANCE = 50;
-            if (dist_val > prev_second_dist){
-                prev_second_dist = dist_val;
-            } else if (dist_val < prev_second_dist && dist_val > 80){
-                set_motion(STOP);
-                stop_flag = 1;
-                set_color(RGB(0,0,1));
-                delay(20);
-                set_color(RGB(0,0,0));
-            }
-
-        // This is just debugging. Blink yellow if distance is decreasing but dist_val is not greater than 80. I used this to validate need for dist_val > 80. In my text in the group chat I lied and said yellow was switch. What I meant was blue (above) is switch.
-        if (cur_distance < prev_second_dist){
-                set_color(RGB(1,1,0));
-                delay(20);
-                set_color(RGB(0,0,0));
-            }
-        }
-
-    } else if (cur_distance == 0) // skip state machine if no distance measurement available
+    
+    // skip state machine if no distance measurement available
+    } else if (cur_distance == 0) {
         return;
+    }
 
     // Changing of current_runner logic
     // When stop_flag is triggered:
