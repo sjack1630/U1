@@ -39,10 +39,13 @@ uint8_t stop_flag; // flag to stop runner
 uint8_t switch_sent_flag; // flag to initialize switch == set compute new current_runner and set in message
 uint8_t cur_target_kilo_id; // id of bot runner is currently orbiting
 uint8_t current_runner_local; // should be same as current_runner until switch. It doesn't work if I don't separate it into current_runner and current_runner_local. I think it's because I'm getting current_runner from main, but I'm also not really sure still
+uint8_t rotate_flag;
+uint8_t last_update_general;
 
 // variables for num_robots = 2
 uint8_t orbit_switch_ct;
 uint32_t last_update;
+uint8_t clock_flag;
 
 
 // function to set new motion
@@ -75,13 +78,16 @@ void orbit_normal() {
     if (cur_distance < TOOCLOSE_DISTANCE) {
         orbit_state = ORBIT_TOOCLOSE;
     } else {
-        if (cur_distance < DESIRED_DISTANCE)
+        if (cur_distance < DESIRED_DISTANCE){
+            if (num_robots == 2 && cur_motion != LEFT){
+                orbit_switch_ct++;
+                set_color(RGB(1,1,1));
+                delay(20);
+                set_color(RGB(0,0,0));
+            }
             set_motion(LEFT);
-        else
+        } else{
             set_motion(RIGHT);
-
-        if (num_robots == 2){
-            orbit_switch_ct++;
         }
     }
 }
@@ -118,7 +124,17 @@ void runner_setup(){
 
     // num_robots = 2
     orbit_switch_ct = 0;
-    last_update = kilo_ticks;
+    set_color(RGB(1,1,1));
+    delay(20);
+    set_color(RGB(0,0,0));
+
+    if (kilo_uid == current_runner && rotate_flag == 1){
+        set_motion(RIGHT);
+        set_color(RGB(0,1,0));
+        delay(6000);
+        set_color(RGB(0,0,0));
+        set_motion(STOP);
+    }
 }
 
 void runner_loop(){
@@ -130,7 +146,7 @@ void runner_loop(){
         // Logic for num_robots = 2 edge case
         if (num_robots == 2){
             // 32 ticks = 1 sec
-            if (kilo_ticks > last_update + 640 || orbit_switch_ct > 4) {
+            if (orbit_switch_ct > 6) {
                 set_motion(STOP);
                 stop_flag = 1;
                 set_color(RGB(0,0,1));
@@ -145,6 +161,7 @@ void runner_loop(){
                 set_color(RGB(0,0,1));
                 delay(20);
                 set_color(RGB(0,0,0));
+                last_update_general = 0;
             }
 
             // Logic for stopping in front
@@ -157,7 +174,7 @@ void runner_loop(){
                 DESIRED_DISTANCE = 50;
                 if (dist_val > prev_second_dist){
                     prev_second_dist = dist_val;
-                } else if (dist_val < prev_second_dist && dist_val > 80){
+                } else if (dist_val < prev_second_dist && dist_val > 82){
                     set_motion(STOP);
                     stop_flag = 1;
                     set_color(RGB(0,0,1));
@@ -196,6 +213,7 @@ void runner_loop(){
             msg.data[1] = current_runner_local;
             msg.crc = message_crc(&msg);
             switch_sent_flag = 1;
+            rotate_flag = 1;
         }
         return;
     }

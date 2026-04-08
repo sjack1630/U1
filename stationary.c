@@ -2,6 +2,7 @@
 
 // Take current_runner from main
 extern uint8_t current_runner;
+extern uint8_t num_robots;
 
 uint8_t message_sent;
 message_t msg;
@@ -24,8 +25,11 @@ void stationary_loop(){
     }
 
     // Continuously update current_runner in message
-    msg.data[1] = current_runner;
-    msg.crc = message_crc(&msg);
+    if (num_robots != 2){
+        msg.data[1] = current_runner;
+        msg.crc = message_crc(&msg);
+    }
+
 
 }
 
