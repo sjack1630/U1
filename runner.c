@@ -39,8 +39,7 @@ uint8_t stop_flag; // flag to stop runner
 uint8_t switch_sent_flag; // flag to initialize switch == set compute new current_runner and set in message
 uint8_t cur_target_kilo_id; // id of bot runner is currently orbiting
 uint8_t current_runner_local; // should be same as current_runner until switch. It doesn't work if I don't separate it into current_runner and current_runner_local. I think it's because I'm getting current_runner from main, but I'm also not really sure still
-uint8_t rotate_flag;
-uint8_t last_update_general;
+uint8_t rotate_flag; // check to see if you're not on first cycle
 
 // variables for num_robots = 2
 uint8_t orbit_switch_ct;
@@ -161,7 +160,6 @@ void runner_loop(){
                 set_color(RGB(0,0,1));
                 delay(20);
                 set_color(RGB(0,0,0));
-                last_update_general = 0;
             }
 
             // Logic for stopping in front
