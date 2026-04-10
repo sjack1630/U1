@@ -174,7 +174,7 @@ void runner_loop(){
                 DESIRED_DISTANCE = 50;
                 if (dist_val > prev_second_dist){
                     prev_second_dist = dist_val;
-                } else if (dist_val < prev_second_dist && dist_val > 82){
+                } else if (dist_val < prev_second_dist && dist_val > 80){
                     set_motion(STOP);
                     stop_flag = 1;
                     set_color(RGB(0,0,1));
@@ -182,7 +182,7 @@ void runner_loop(){
                     set_color(RGB(0,0,0));
                 }
 
-            // This is just debugging. Blink yellow if distance is decreasing but dist_val is not greater than 80. I used this to validate need for dist_val > 80. In my text in the group chat I lied and said yellow was switch. What I meant was blue (above) is switch.
+            // This is just debugging. Blink yellow if distance is decreasing but dist_val is not greater than 80. I used this to validate need for dist_val > 80.
             if (cur_distance < prev_second_dist){
                     set_color(RGB(1,1,0));
                     delay(20);
